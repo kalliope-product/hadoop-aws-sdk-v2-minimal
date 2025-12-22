@@ -25,7 +25,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }} // Use the runner token for this command
         run: |
-          gh release create ${GITHUB_REF#refs/tags/} target/scala-2.12/hadoop-aws-sdk-v2-minimal-*.jar \
+          gh release create ${GITHUB_REF#refs/tags/} target/scala-2.13/hadoop-aws-sdk-minimal.jar \
             --generate-notes
 
           
