@@ -1,0 +1,29 @@
+name: Publish Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Triggers on pushes to tags matching the pattern v1.0.0, v2.0.1, etc.
+permissions:
+  contents: write # Required to create the release and upload assets
+
+jobs:
+  publish:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v6
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+            distribution: temurin
+            java-version: 17
+            cache: sbt
+      - uses: sbt/setup-sbt@v1
+      - name: Build
+        run: sbt assembly
+      - name: Publish to Github Artifacts
+        run: |
+          gh release create ${GITHUB_REF#refs/tags/} target/scala-2.12/hadoop-aws-sdk-v2-minimal-*.jar \
+            --generate-notes
+
+          
