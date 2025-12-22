@@ -24,7 +24,7 @@ jobs:
         run: sbt assembly
       - name: Publish to Github Artifacts
         env:
-          GH_TOKEN: ${{ github.token }} // Use the runner token for this command
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Use the runner token for this command
           RELEASE_TAG: ${{ github.ref_name}}
         run: |
           mv target/scala-2.13/hadoop-aws-sdk-minimal.jar hadoop-aws-sdk-minimal-$RELEASE_TAG.jar
