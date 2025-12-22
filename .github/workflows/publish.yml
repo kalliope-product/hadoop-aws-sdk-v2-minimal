@@ -4,12 +4,13 @@ on:
   push:
     tags:
       - 'v*.*.*' # Triggers on pushes to tags matching the pattern v1.0.0, v2.0.1, etc.
-permissions:
-  contents: write # Required to create the release and upload assets
 
 jobs:
   publish:
       runs-on: ubuntu-latest
+      permissions:
+        # Required to publish a release
+        contents: write
       steps:
       - uses: actions/checkout@v6
       - name: Setup JDK
@@ -24,8 +25,10 @@ jobs:
       - name: Publish to Github Artifacts
         env:
           GH_TOKEN: ${{ github.token }} // Use the runner token for this command
+          RELEASE_TAG: ${{ github.ref_name}}
         run: |
-          gh release create ${GITHUB_REF#refs/tags/} target/scala-2.13/hadoop-aws-sdk-minimal.jar \
+          mv target/scala-2.13/hadoop-aws-sdk-minimal.jar hadoop-aws-sdk-minimal-$RELEASE_TAG.jar
+          gh release create $RELEASE_TAG hadoop-aws-sdk-minimal-$RELEASE_TAG.jar \
             --generate-notes
 
           
