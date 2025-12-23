@@ -17,11 +17,26 @@ lazy val root = (project in file("."))
       )
     },
 
+    // Global exclusion
+    excludeDependencies ++= Seq(
+      ExclusionRule("org.slf4j", "slf4j-api")
+    ),
+
+    // Shading/relocation rules
+    assembly / assemblyShadeRules := Seq(
+      ShadeRule.rename("org.apache.http.**" -> "org.apache.iceberg.aws.shaded.org.apache.http.@1").inAll,
+      ShadeRule.rename("io.netty.**" -> "org.apache.iceberg.aws.shaded.io.netty.@1").inAll
+    ),
+
     assembly / assemblyMergeStrategy := {
-      case PathList("META-INF", "services", _*) => MergeStrategy.concat
-      case PathList("META-INF", _*)             => MergeStrategy.discard
-      case "module-info.class"                  => MergeStrategy.discard
-      case x                                    => MergeStrategy.first
+      case PathList("META-INF", "services", xs @ _*) => MergeStrategy.concat
+      case PathList("META-INF", "MANIFEST.MF")       => MergeStrategy.discard
+      case PathList("META-INF", xs @ _*) if xs.lastOption.exists(x => x.endsWith(".SF") || x.endsWith(".DSA") || x.endsWith(".RSA")) =>
+        MergeStrategy.discard
+      case PathList("META-INF", xs @ _*)             => MergeStrategy.first
+      case "module-info.class"                       => MergeStrategy.discard
+      case x if x.endsWith(".properties")            => MergeStrategy.first
+      case x                                         => MergeStrategy.first
     },
 
     assembly / assemblyJarName := "hadoop-aws-sdk-minimal.jar"
